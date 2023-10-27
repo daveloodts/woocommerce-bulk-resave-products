@@ -1,0 +1,7 @@
+/* General CSS */
+.blueparrot-product-resave-form {position: relative;}
+.blueparrot-product-resave-form .blueparrot-progress {background: #ddd; position: absolute; bottom: 15px; width: 95%; height: 15px;}
+.blueparrot-product-resave-form .blueparrot-progress div {background: #0073aa; height: 100%; width: 0;}
+.blueparrot-product-resave-form .notice-wrap {background-color: #f4f4f4; border-style: solid; border-width: 1px 0; border-color: #eae9e9; padding: 12px 12px 4px; overflow: auto; margin: 20px -12px -23px; position: relative;}
+.blueparrot-product-resave-form .notice-wrap .spinner {margin: 4px 10px 8px; float: right;}
+.blueparrot-product-update-result-wrp{display: none;}

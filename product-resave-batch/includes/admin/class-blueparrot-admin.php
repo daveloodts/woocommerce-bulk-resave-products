@@ -103,32 +103,31 @@ class BlueParrot_Admin {
 		$data_process	= isset( $args['data_process'] )	? $args['data_process']	: 0;
 		$total_count	= isset( $args['total_count'] )		? $args['total_count']	: 0;
 
-		// Query Offset
-		$page_offset = ( ( $page * $limit ) - $limit );
+		if( $page == 1 ) {
+			
+			// Getting data
+			$get_total_product	= "SELECT COUNT(ID) FROM `{$wpdb->prefix}posts` WHERE 1=1 AND `post_type` = 'product' AND `post_status` IN('draft', 'pending', 'private', 'publish')";
+			$total_count		= $wpdb->get_var( $get_total_product );
+		}
 
-		// Getting data
-		$get_total_product			= "SELECT * FROM `{$wpdb->prefix}posts` WHERE 1=1 AND `post_type` = 'product'";
-		$get_total_product_results	= $wpdb->get_results( $get_total_product, ARRAY_A );
-		$product_total_count		= count( $get_total_product_results );
-
-		// Getting data
-		$product_query		= "SELECT * FROM `{$wpdb->prefix}posts` WHERE 1=1 AND `post_type` = 'product' LIMIT {$page_offset},{$limit}";
-		$product_arr		= $wpdb->get_results( $product_query, ARRAY_A );
-		$product_count		= count( $product_arr );
+		// Get products
+		$product_arr = wc_get_products(array(
+			'status'	=> array( 'draft', 'pending', 'private', 'publish' ),
+			'limit'		=> $limit,
+			'page'		=> $page,
+		));
 
 		// If data found
 		if( $product_arr ) {
 
-			foreach( $product_arr as $product_key => $product_data ) {
-				$product_obj = wc_get_product( $product_data['ID'] );
+			$product_count = count( $product_arr );
+
+			foreach( $product_arr as $product_key => $product_obj ) {
 				$product_obj->save();
 			}
 
 			// If process is newly started - Step 1
 			if( $page < 2 ) {
-
-				// Taking total counts of data at first time
-				$total_count = $product_total_count;
 
 				$result['result_message'] .= '<p>'. sprintf( __( 'Total %d Product found for save.', 'product-resave-in-batches' ), $total_count ) .'</p>';
 				$result['result_message'] .= '<p style="color:green;">'. __('Percentage Completed', 'product-resave-in-batches') .' : <span class="blueparrot-product-result-percent">0</span>%</p>';
@@ -150,21 +149,12 @@ class BlueParrot_Admin {
 				$result['result_message'] .= '<p>'.__( 'All looks good. All products has been save.', 'product-resave-in-batches' ).'</p>';
 			}
 
-			// If process is done
-			if( $data_process >= $total_count ) {
-
-				//$result['url'] = add_query_arg( array( $args['redirect_url'] ) );
-			}
-
 			$result['status'] 		= 1;
 			$result['message']		= esc_html__('Product Resave successfully.', 'product-resave-in-batches');
 			$result['page']			= ( $page + 1 );
 			$result['total_count'] 	= $total_count;
 			$result['percentage'] 	= round( $percentage, 2 );
 			$result['data_process'] = $data_process;
-
-		} else {
-			return $result;
 		}
 
 		return $result;
